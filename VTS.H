@@ -32,6 +32,9 @@
 // Definitions of VTS functions (from shared library, written in Pascal)
 #include "vts_interface.H"
 
+//#define foamInputType OpFM_InputType_t
+//#define foamOutputType OpFM_OutputType_t
+
 namespace externalTurbineModel
 {
 
@@ -137,6 +140,9 @@ private:
 
     hid_t velNodeDataFile; // HDF-5 tag of file containing velocity node data
 
+    std::vector<foamInputType> cDriver_Input_from_external;
+    std::vector<foamOutputType> cDriver_Output_to_external;
+
     // Turbine Number is DIFFERENT from TurbID; turbine Number simply runs from
     // 0:n-1 locally and globally.
     // - Mapping global turbine number to processor number
@@ -184,11 +190,11 @@ public:
     // restart I/O
     hid_t openVelocityDataFile(bool createFile);
     void readVelocityData(int nTimesteps);
-//  void writeVelocityData(hid_t h5file, int iTurb, int iTimestep, OpFM_InputType_t iData, OpFM_OutputType_t oData);
-//  herr_t closeVelocityDataFile(int nt_global, hid_t velDataFile);
+    void writeVelocityData(hid_t h5file, int iTurb, int iTimestep, foamInputType iData, foamOutputType oData);
+    herr_t closeVelocityDataFile(int nt_global, hid_t velDataFile);
 
     // get/setters
-//  void setTurbineProcNo(int iTurbGlob, int procNo) { turbineMapGlobToProc[iTurbGlob] = procNo; }
+    void setTurbineProcNo(int iTurbGlob, int procNo) { turbineMapGlobToProc[iTurbGlob] = procNo; }
     void allocateTurbinesToProcsSimple();
     void getApproxHubPos(std::vector<double> & currentCoords, int iTurbGlob);
     void getHubPos(std::vector<double> & currentCoords, int iTurbGlob);
@@ -211,16 +217,16 @@ public:
     simStartType get_simStartType() { return simStart; }
     bool isTimeZero() { return timeZero; }
 
-//  int get_procNo(int iTurbGlob) { return turbineMapGlobToProc[iTurbGlob] ; } // Get processor number of a turbine with global id 'iTurbGlob'
-//  int get_localTurbNo(int iTurbGlob) { return reverseTurbineMapProcToGlob[iTurbGlob]; }
-//  int get_nTurbinesGlob() { return nTurbinesGlob; } 
-//  int get_numBlades(int iTurbGlob) { return get_numBladesLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numVelPtsBlade(int iTurbGlob) { return get_numVelPtsBladeLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numVelPtsTower(int iTurbGlob) { return get_numVelPtsTowerLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numVelPts(int iTurbGlob) { return get_numVelPtsLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numForcePtsBlade(int iTurbGlob) { return get_numForcePtsBladeLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numForcePtsTower(int iTurbGlob) { return get_numForcePtsTowerLoc(get_localTurbNo(iTurbGlob)); }
-//  int get_numForcePts(int iTurbGlob) { return get_numForcePtsLoc(get_localTurbNo(iTurbGlob)); }
+    int get_procNo(int iTurbGlob) { return turbineMapGlobToProc[iTurbGlob] ; } // Get processor number of a turbine with global id 'iTurbGlob'
+    int get_localTurbNo(int iTurbGlob) { return reverseTurbineMapProcToGlob[iTurbGlob]; }
+    int get_nTurbinesGlob() { return nTurbinesGlob; } 
+    int get_numBlades(int iTurbGlob) { return get_numBladesLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numVelPtsBlade(int iTurbGlob) { return get_numVelPtsBladeLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numVelPtsTower(int iTurbGlob) { return get_numVelPtsTowerLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numVelPts(int iTurbGlob) { return get_numVelPtsLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numForcePtsBlade(int iTurbGlob) { return get_numForcePtsBladeLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numForcePtsTower(int iTurbGlob) { return get_numForcePtsTowerLoc(get_localTurbNo(iTurbGlob)); }
+    int get_numForcePts(int iTurbGlob) { return get_numForcePtsLoc(get_localTurbNo(iTurbGlob)); }
 
     // processing functions
     void computeTorqueThrust
@@ -245,7 +251,7 @@ private:
     int get_numForcePtsTowerLoc(int iTurbLoc) { return numForcePtsTower[iTurbLoc]; }
     int get_numForcePtsLoc(int iTurbLoc) { return 1 + numBlades[iTurbLoc]*numForcePtsBlade[iTurbLoc] + numForcePtsTower[iTurbLoc]; }
     
-//  void applyVelocityData(int iPrestart, int iTurb, OpFM_OutputType_t cDriver_Output_to_FAST, std::vector<double> & velData) ;
+    void applyVelocityData(int iPrestart, int iTurb, foamOutputType cDriver_Output_to_external, std::vector<double>& velData) ;
 };
 
 
